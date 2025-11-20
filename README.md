@@ -1,6 +1,6 @@
 # RAG Retrieval Pipeline Challenge
 
-You'll receive a messy WordPress QA dataset and transform it into a functional retrieval system. We provide the scaffolding (CLI commands, settings, optional Docker infrastructure). The implementation is entirely yours.
+You'll receive a messy WordPress QA dataset ( https://huggingface.co/datasets/mteb/cqadupstack-wordpress ) and transform it into a functional retrieval system. We provide the scaffolding (CLI commands, settings, optional Docker infrastructure). The implementation is entirely yours.
 
 ## Core Requirements
 
