@@ -5,6 +5,8 @@ from typing import Optional, Type
 
 import typer
 
+from dotenv import load_dotenv
+
 from .agent import BaseAgentController
 from .data import BaseIngestionPipeline
 from .evaluation import BaseEvaluator
@@ -29,6 +31,7 @@ def _instantiate(path: Optional[str], expected: Type) -> object:
 
 @app.callback()
 def main(_: Optional[bool] = typer.Option(None, "--version", callback=lambda v: None)) -> None:
+    load_dotenv()
     configure_logging()
 
 
@@ -52,6 +55,26 @@ def agent() -> None:
 def evaluate() -> None:
     evaluator = _instantiate(get_settings().evaluator_class, BaseEvaluator)
     evaluator.evaluate()
+
+
+@app.command(name="serve-api")
+def serve_api(
+    host: str = typer.Option("0.0.0.0", help="Host to bind to"),
+    port: int = typer.Option(8000, help="Port to bind to"),
+    reload: bool = typer.Option(False, help="Enable auto-reload on code changes"),
+) -> None:
+    """Start the FastAPI server for the RAG agent."""
+    import uvicorn
+    
+    typer.echo(f"🚀 Starting FastAPI server on {host}:{port}")
+    typer.echo(f"📚 API docs: http://{host}:{port}/docs")
+    
+    uvicorn.run(
+        "agentic_rag.api:app",
+        host=host,
+        port=port,
+        reload=reload,
+    )
 
 
 if __name__ == "__main__":  # pragma: no cover

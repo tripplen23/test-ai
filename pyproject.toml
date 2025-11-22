@@ -24,10 +24,16 @@ dependencies = [
     "faiss-cpu>=1.7.4",
     "langchain>=0.2",
     "langchain-community>=0.2",
+    "langchain-openai>=0.1",
     "langchainhub>=0.1",
     "chromadb>=0.5",
     "fastapi>=0.111",
     "uvicorn[standard]>=0.29",
+    "psycopg2-binary>=2.9",
+    "pgvector>=0.3.0",
+    "langgraph>=0.0.10",
+    "tavily-python>=0.3.0",
+    "langgraph-cli>=0.4.7",
 ]
 
 [project.optional-dependencies]
@@ -57,7 +63,10 @@ indent-style = "space"
 
 [tool.pytest.ini_options]
 addopts = "-ra --showlocals"
-pythonpath = ["src"]
+pythonpath = ["src", "."]
+markers = [
+    "integration: marks tests as integration tests",
+]
 
 [tool.coverage.run]
 branch = true

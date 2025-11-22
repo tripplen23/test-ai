@@ -29,9 +29,22 @@ def download(output_dir: Path) -> None:
     settings = get_settings()
     dataset_name = settings.dataset.name
     output_dir.mkdir(parents=True, exist_ok=True)
+    
+    hf_token = os.environ.get("HF_TOKEN") or getattr(settings, "hf_token", None)
+    
     for name, config in CONFIGS.items():
         split = SPLITS[name]
-        ds = load_dataset(dataset_name, config, split=split)
+        try:
+            ds = load_dataset(dataset_name, config, split=split, token=hf_token)
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "authentication" in error_msg or "401" in str(e) or "403" in str(e) or "unauthorized" in error_msg:
+                raise RuntimeError(
+                    f"Authentication failed. Please set HF_TOKEN environment variable "
+                    f"or HF_TOKEN if the dataset requires authentication. Error: {e}"
+                ) from e
+            raise
+        
         target = output_dir / f"{name}.jsonl"
         print(f"[download_dataset] writing {name} -> {target}")
         write_jsonl(target, ds)

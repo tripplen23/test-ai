@@ -1,6 +1,6 @@
 """Data layer primitives."""
 
-from .pipeline import BaseIngestionPipeline
+from .ingestion_pipeline import BaseIngestionPipeline, IngestionPipeline
 from .types import Chunk, RawRecord
 
-__all__ = ["BaseIngestionPipeline", "Chunk", "RawRecord"]
+__all__ = ["BaseIngestionPipeline", "Chunk", "IngestionPipeline", "RawRecord"]

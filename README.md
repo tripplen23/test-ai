@@ -1,48 +1,176 @@
-# RAG Retrieval Pipeline Challenge
+# AI Agent with RAG Retrieval Pipeline Challenge
 
-You'll receive a messy WordPress QA dataset ( https://huggingface.co/datasets/mteb/cqadupstack-wordpress ) and transform it into a functional retrieval system. We provide the scaffolding (CLI commands, settings, optional Docker infrastructure). The implementation is entirely yours.
-
-## Core Requirements
-
-The task centers on two components. First, build an ingestion pipeline that cleans the raw data, chunks it appropriately, and persists it to the provided Postgres + pgvector instance (see `docker-compose.yml`). If you prefer an alternative to pgvector, document your reasoning. Second, design and implement the retrieval system itself: embedding strategy, indexing approach, and query handling. We intentionally provide no defaults here.
-
-The core work should take 2-3 hours. If you finish early or want to demonstrate additional capabilities, consider adding a reranker or implementing a multi-turn conversational agent. These are strictly optional.
-
-## Repository Structure
-```
-.
-├── Makefile                  
-├── docker-compose.yml        
-├── pyproject.toml            
-├── src/agentic_rag/          
-└── scripts/download_dataset.py
-```
-
-Reorganize as needed, but preserve the CLI commands for reproducibility.
-
-## Setup and Execution
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-make compose-up        
-make data              
-make ingest            
-make agent             
-```
-
-Stop the pgvector service with `make compose-down`. If the dataset requires authentication, export `HF_TOKEN` before downloading.
+Transform a WordPress QA dataset into a functional retrieval system with ingestion pipeline and retrieval capabilities.
 
 ## Configuration
 
-Specify your implementations via environment variables or `.env`:
+Create `.env` file based on `.env.example`:
+
 ```bash
-export AGENTIC_RAG_INGESTION_CLASS="my_pkg.ingestion.Pipeline"
-export AGENTIC_RAG_AGENT_CONTROLLER_CLASS="my_pkg.agent.Controller"
+make env
 ```
 
-## Submission
+Then set up your 
+- [OpenAI API Key](https://platform.openai.com/api-keys)
+- [Huggingface token](https://huggingface.co/settings/tokens)
+- [Tavily API Key](https://app.tavily.com/home)
+- [LangSmith API Key](https://smith.langchain.com)
 
-Provide a repository link with clear execution instructions. Include a brief architectural overview that addresses your design decisions: embedding model selection, chunking strategy, pgvector schema and indexing approach, known limitations, and potential improvements. If you deviated from pgvector, explain the alternative and its trade-offs.
+## Quick Start
 
-Additional artifacts (tests, documentation, tooling) are at your discretion.
+```bash
+# Setup
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+# Start database
+make compose-up
+
+# Download dataset
+make data  # Set HF_TOKEN if needed
+
+# Run ingestion
+make ingest
+
+# Run agent (interactive CLI)
+make agent
+
+# OR: Start REST API server
+make server  # API at http://localhost:8000, docs at /docs
+
+# OR: Start LangGraph Studio (for visual debugging)
+langgraph dev  # Studio at http://127.0.0.1:2024
+
+# Stop database
+make compose-down
+```
+
+> **Note**: For LangGraph Studio setup and usage, see [docs/LANGSMITH_STUDIO_SETUP.md](docs/LANGSMITH_STUDIO_SETUP.md)
+
+## Architecture
+
+### Ingestion Pipeline
+
+**Workflow**: `load_raw()` → `transform()` → `persist()`
+
+1. **Load**: Reads `corpus.jsonl`, parses into `RawRecord` objects
+2. **Transform**: Cleans text, validates records, chunks using LangChain `RecursiveCharacterTextSplitter`
+3. **Persist**: Stores chunks and embeddings to PostgreSQL + pgvector via LangChain `PGVector`
+
+**Key Features**:
+- Smart text cleaning (preserves code blocks, markdown formatting)
+- Batch processing (500 chunks per batch)
+- Automatic schema creation and HNSW indexing
+- Comprehensive error handling and progress tracking
+
+### Agent Architecture (LangGraph)
+
+**Workflow**: Router → RAG Search → Judge → Generate Answer
+
+![agent_architecture](./docs/img/agent_architecture.png)
+
+The agent uses [LangGraph](https://langchain-ai.github.io/langgraph/) for orchestration with the following flow:
+
+1. **Router Node**: Analyzes query intent
+   - `direct_answer`: Simple greetings/chitchat → Direct response
+   - `greeting`: Welcome messages → Direct response  
+   - `needs_kb`: Technical questions → Proceed to retrieval
+
+2. **RAG Search Node**: Retrieves relevant context
+   - Vector search with PGVector (top-10 candidates)
+   - Cross-encoder reranking (top-3 chunks)
+   - Returns concatenated context
+
+3. **Judge Node**: Evaluates context quality
+   - Checks if context is sufficient to answer
+   - `yes`: Use RAG context
+   - `no`: Fall back to web search (Tavily)
+
+4. **Generate Answer Node**: Creates final response
+   - Uses OpenAI GPT-4o-mini
+   - Context-aware generation with conversation history
+   - Supports multi-turn conversations
+
+**Key Features**:
+- Conditional routing based on query intent
+- Hybrid search (RAG + Web fallback)
+- LangSmith tracing for observability
+- FastAPI REST API endpoint
+
+**Tracing & Debugging**: See [docs/LANGSMITH_STUDIO_SETUP.md](docs/LANGSMITH_STUDIO_SETUP.md) for LangGraph Studio setup
+
+### Design Decisions
+
+- **Embeddings**: OpenAI `text-embedding-3-small` (1536 dimensions) - computed by PGVector during persistence
+- **Chunking**: LangChain `RecursiveCharacterTextSplitter` (1000 characters, 200 overlap) - ensure the context of the answer is not lost
+- **Database**: LangChain PGVector - automatic schema/extension management
+
+## Testing
+
+```bash
+# All tests
+make test
+```
+
+## Project Structure
+
+```
+src/agentic_rag/
+├── data/
+│   ├── ingestion_pipeline.py  # Main ingestion pipeline
+│   ├── chunking.py             # Text splitting (contextual chunking)
+│   ├── cleaning.py             # Text preprocessing
+│   ├── db.py                   # Database utilities
+│   └── types.py                # Type definitions
+├── retrieval/
+│   ├── retriever.py            # PGVector retrieval
+│   ├── reranker.py             # Cross-encoder reranking
+│   ├── base.py                 # Base interfaces
+│   └── schemas.py              # Query/Chunk types
+├── agent/
+│   ├── graph.py                # LangGraph orchestration
+│   ├── agent_controller.py     # Agent controller (LangGraph wrapper)
+│   ├── tools.py                # RAG & Web search tools
+│   ├── prompts.py              # Router/Judge/System prompts
+│   └── types.py                # Message types
+├── schemas/
+│   └── api.py                  # FastAPI request/response models
+└── api.py                      # FastAPI REST API
+```
+
+# Server API Endpoints
+
+```bash
+make server
+```
+
+### POST `/chat`
+Send messages to the agent and get responses.
+
+**Request**:
+```json
+{
+  "messages": [
+    {"role": "user", "content": "How to install WordPress?"}
+  ]
+}
+```
+
+**Response**:
+```json
+{
+  "response": "To install WordPress, you need to..."
+}
+```
+
+### GET `/health`
+Check API health status.
+
+**Response**:
+```json
+{
+  "status": "healthy",
+  "agent_initialized": true
+}
+```

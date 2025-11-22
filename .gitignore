@@ -9,3 +9,9 @@ artifacts/
 .ruff_cache/
 .mypy_cache/
 .DS_Store
+.langgraph_api
+.pytest_cache
+.superdesign
+flowpilot_challenge.egg-info/
+.cursor
+.collection_log.txt

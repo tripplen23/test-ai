@@ -1,12 +1,12 @@
 """Agent interfaces."""
 
+from .agent_controller import AgentController
 from .controller import BaseAgentController
-from .tools import BaseTool
 from .types import Message, PlanStep, Role, ToolSpec
 
 __all__ = [
+    "AgentController",
     "BaseAgentController",
-    "BaseTool",
     "Message",
     "PlanStep",
     "Role",

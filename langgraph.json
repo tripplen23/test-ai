@@ -1,0 +1,18 @@
+{
+    "python_version": "3.12",
+    "graphs": {
+        "agent": "./src/agentic_rag/agent/graph.py:graph"
+    },
+    "env": ".env",
+    "dependencies": [
+        ".",
+        "langgraph>=0.0.10",
+        "langchain-openai",
+        "langchain-community",
+        "tavily-python",
+        "pydantic-settings",
+        "pgvector",
+        "psycopg2-binary",
+        "python-dotenv"
+    ]
+}
