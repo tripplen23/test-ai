@@ -11,16 +11,16 @@ make env
 ```
 
 Then set up your 
-- [OpenAI API Key](https://platform.openai.com/api-keys)
-- [Huggingface token](https://huggingface.co/settings/tokens)
-- [Tavily API Key](https://app.tavily.com/home)
-- [LangSmith API Key](https://smith.langchain.com)
+- [OPENAI_API_KEY](https://platform.openai.com/api-keys)
+- [HF_TOKEN](https://huggingface.co/settings/tokens)
+- [TAVILY_API_KEY](https://app.tavily.com/home)
+- [LANGCHAIN_API_KEY](https://smith.langchain.com)
 
 ## Quick Start
 
 ```bash
 # Setup
-python -m venv .venv
+python3 -m venv .venv # Windows: python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 make compose-up
 
 # Download dataset
-make data  # Set HF_TOKEN if needed
+make data 
 
 # Run ingestion
 make ingest
