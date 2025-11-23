@@ -64,6 +64,9 @@ make compose-down
 - Automatic schema creation and HNSW indexing
 - Comprehensive error handling and progress tracking
 
+Data after being cleaned, chunked and persisted to PostgreSQL + pgvector by the pipeline:
+![alt text](./docs/img/data_after_ingestion.png)
+
 ### Agent Architecture (LangGraph)
 
 **Workflow**: Router → RAG Search → Judge → Generate Answer
