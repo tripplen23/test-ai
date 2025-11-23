@@ -1,6 +1,6 @@
 # LangGraph Studio Setup Guide
 
-This guide walks you through setting up and accessing LangGraph Studio to visualize your agent's execution flow.
+This guide walks you through setting up and accessing LangGraph Studio to visualize your agent's execution flow. Make it easy to debug and understand the flow of your agent.
 
 ## Prerequisites
 
@@ -78,3 +78,13 @@ http://127.0.0.1:2024/docs
 ```
 
 If the Swagger UI loads, the server is working correctly and the issue is browser-related.
+
+# Example Graph Debug and tracing from the project:
+
+1. Studio Interface:
+
+![alt text](./img/langGraph_studio_interface2.png)
+
+2. Tracing Interface - Where can trace even PGVector Retriever as well as Reranker nodes:
+
+![alt text](./img/tracing_interface.png)
