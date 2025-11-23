@@ -45,6 +45,14 @@ langgraph dev
 
 ![LangSmith Studio Button](./img/langSmith_studio_button.png)
 
+3. Choose the `Connect to local server` option
+
+![alt text](./img/connect_to_local_server.png)
+
+4. Type `http://localhost:2024` in the Base URL field
+
+![alt text](./img/connect.png)
+
 ### 5. Visualize Your Agent
 
 You can now view your agent's execution flow in real-time through the Studio interface:
