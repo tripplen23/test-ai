@@ -15,3 +15,4 @@ artifacts/
 flowpilot_challenge.egg-info/
 .cursor
 .collection_log.txt
+build
