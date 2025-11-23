@@ -40,7 +40,7 @@ make agent
 make server  # API at http://localhost:8000, docs at /docs
 
 # OR: Start LangGraph Studio (for visual debugging)
-langgraph dev  # Studio at http://127.0.0.1:2024
+langgraph dev  # Studio at http://localhost:2024
 
 # Stop database
 make compose-down
@@ -114,32 +114,6 @@ The agent uses [LangGraph](https://langchain-ai.github.io/langgraph/) for orches
 ```bash
 # All tests
 make test
-```
-
-## Project Structure
-
-```
-src/agentic_rag/
-├── data/
-│   ├── ingestion_pipeline.py  # Main ingestion pipeline
-│   ├── chunking.py             # Text splitting (contextual chunking)
-│   ├── cleaning.py             # Text preprocessing
-│   ├── db.py                   # Database utilities
-│   └── types.py                # Type definitions
-├── retrieval/
-│   ├── retriever.py            # PGVector retrieval
-│   ├── reranker.py             # Cross-encoder reranking
-│   ├── base.py                 # Base interfaces
-│   └── schemas.py              # Query/Chunk types
-├── agent/
-│   ├── graph.py                # LangGraph orchestration
-│   ├── agent_controller.py     # Agent controller (LangGraph wrapper)
-│   ├── tools.py                # RAG & Web search tools
-│   ├── prompts.py              # Router/Judge/System prompts
-│   └── types.py                # Message types
-├── schemas/
-│   └── api.py                  # FastAPI request/response models
-└── api.py                      # FastAPI REST API
 ```
 
 # Server API Endpoints
